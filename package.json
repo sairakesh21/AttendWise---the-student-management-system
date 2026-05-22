@@ -1,0 +1,16 @@
+{
+  "name": "attendwise",
+  "version": "1.0.0",
+  "description": "Smart Student Attendance & Assignment Management System",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "backend": "npm run start --prefix backend",
+    "backend-dev": "npm run dev --prefix backend",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run backend-dev\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
