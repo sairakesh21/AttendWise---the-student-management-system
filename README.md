@@ -144,7 +144,7 @@ Follow these steps to run the application locally on your Windows environment:
 Verify or create a `.env` file in the [`backend/`](file:///d:/Sai_Rakesh/Student_Mngmt_System/backend/) directory:
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://saigemini5:ultimateprogrammer123@cluster0.gtt7pkr.mongodb.net/attendwise?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://saigemini5:<db_password>@cluster0.gtt7pkr.mongodb.net/attendwise?retryWrites=true&w=majority
 JWT_SECRET=super_secret_jwt_token_for_attendwise_2026
 NODE_ENV=development
 ```
