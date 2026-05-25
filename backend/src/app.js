@@ -30,10 +30,21 @@ app.use('/api/attendance', require('./routes/attendanceRoutes'));
 app.use('/api/assignments', require('./routes/assignmentRoutes'));
 app.use('/api/notices', require('./routes/noticeRoutes'));
 
-// Root Route
-app.get('/', (req, res) => {
-  res.json({ message: 'AttendWise API is running...' });
-});
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
+  // Direct all non-API and non-static requests to React's index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../../frontend', 'dist', 'index.html'));
+  });
+} else {
+  // Root Route for development
+  app.get('/', (req, res) => {
+    res.json({ message: 'AttendWise API is running...' });
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
