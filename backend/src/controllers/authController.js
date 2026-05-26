@@ -92,8 +92,49 @@ const getMe = async (req, res) => {
   }
 };
 
+// @desc    Update user settings (name, password, subject)
+// @route   PUT /api/auth/settings
+// @access  Private
+const updateSettings = async (req, res) => {
+  const { name, password, subject } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    if (user.role === 'teacher' && subject) {
+      user.subject = subject;
+    }
+
+    if (password) {
+      user.password = password;
+    }
+
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      subject: user.subject,
+      rollNumber: user.rollNumber
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   registerTeacher,
   loginUser,
-  getMe
+  getMe,
+  updateSettings
 };

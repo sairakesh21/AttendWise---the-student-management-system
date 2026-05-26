@@ -9,6 +9,7 @@ import {
   Megaphone,
   LogOut,
   GraduationCap,
+  Settings,
   X
 } from 'lucide-react';
 
@@ -23,13 +24,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         { path: '/attendance', label: 'Attendance', icon: CalendarDays },
         { path: '/assignments', label: 'Assignments', icon: FileText },
         { path: '/students', label: 'Students', icon: Users },
-        { path: '/notices', label: 'Notices', icon: Megaphone }
+        { path: '/notices', label: 'Notices', icon: Megaphone },
+        { path: '/settings', label: 'Settings', icon: Settings }
       ]
     : [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/attendance', label: 'Attendance', icon: CalendarDays },
         { path: '/assignments', label: 'Assignments', icon: FileText },
-        { path: '/notices', label: 'Notices', icon: Megaphone }
+        { path: '/notices', label: 'Notices', icon: Megaphone },
+        { path: '/settings', label: 'Settings', icon: Settings }
       ];
 
   const handleLogout = () => {

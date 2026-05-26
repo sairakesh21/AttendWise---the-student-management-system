@@ -12,6 +12,7 @@ import AttendancePage from './pages/AttendancePage';
 import AssignmentPage from './pages/AssignmentPage';
 import StudentList from './pages/StudentList';
 import NoticesPage from './pages/NoticesPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -59,6 +60,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <NoticesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <SettingsPage />
                 </Layout>
               </ProtectedRoute>
             }
