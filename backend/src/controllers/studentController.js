@@ -52,7 +52,41 @@ const getStudents = async (req, res) => {
   }
 };
 
+// @desc    Delete a student account
+// @route   DELETE /api/students/:id
+// @access  Private/Teacher
+const deleteStudent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const student = await User.findById(id);
+
+    if (!student || student.role !== 'student') {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Delete student submissions first to maintain integrity
+    const Submission = require('../models/Submission');
+    await Submission.deleteMany({ student: id });
+
+    // Pull the student's records from attendance array logs
+    const Attendance = require('../models/Attendance');
+    await Attendance.updateMany(
+      { "records.student": id },
+      { $pull: { records: { student: id } } }
+    );
+
+    // Delete the student document
+    await User.findByIdAndDelete(id);
+
+    res.json({ message: 'Student account and associated records deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   addStudent,
-  getStudents
+  getStudents,
+  deleteStudent
 };

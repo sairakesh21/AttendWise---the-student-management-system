@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Users, UserPlus, Key, Mail, Hash, User, AlertCircle, Copy, Check, Sparkles } from 'lucide-react';
+import { Plus, Users, UserPlus, Key, Mail, Hash, User, AlertCircle, Copy, Check, Sparkles, Trash2 } from 'lucide-react';
 
 const StudentList = () => {
   const { authenticatedFetch } = useAuth();
@@ -17,6 +17,10 @@ const StudentList = () => {
   const [password, setPassword] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Delete Student State
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [deletingId, setDeletingId] = useState('');
 
   const fetchStudents = async () => {
     try {
@@ -91,6 +95,34 @@ const StudentList = () => {
     navigator.clipboard.writeText(text);
     setCopiedId(student._id);
     setTimeout(() => setCopiedId(''), 2000);
+  };
+
+  const handleDeleteStudentClick = (student) => {
+    setStudentToDelete(student);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!studentToDelete) return;
+    try {
+      setDeletingId(studentToDelete._id);
+      setErrorMsg('');
+      const response = await authenticatedFetch(`/students/${studentToDelete._id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to delete student');
+      }
+
+      setSuccessMsg(`Student account for ${studentToDelete.name} was successfully removed.`);
+      setStudents(prev => prev.filter(s => s._id !== studentToDelete._id));
+      setStudentToDelete(null);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setDeletingId('');
+    }
   };
 
   if (loading) {
@@ -269,22 +301,31 @@ const StudentList = () => {
                     <td className="py-4 font-semibold text-white">{student.name}</td>
                     <td className="py-4 text-slate-400">{student.email}</td>
                     <td className="py-4 text-right pr-4">
-                      <button
-                        onClick={() => handleCopyCredentials(student)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 rounded-lg text-xs font-semibold border border-slate-700 hover:border-indigo-500 transition-all active:scale-95"
-                      >
-                        {copiedId === student._id ? (
-                          <>
-                            <Check size={12} className="text-emerald-400" />
-                            <span className="text-emerald-400">Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy size={12} />
-                            <span>Copy Login Info</span>
-                          </>
-                        )}
-                      </button>
+                      <div className="flex justify-end items-center gap-2">
+                        <button
+                          onClick={() => handleCopyCredentials(student)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-300 rounded-lg text-xs font-semibold border border-slate-700 hover:border-indigo-500 transition-all active:scale-95 cursor-pointer"
+                        >
+                          {copiedId === student._id ? (
+                            <>
+                              <Check size={12} className="text-emerald-400" />
+                              <span className="text-emerald-400">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={12} />
+                              <span>Copy Login Info</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStudentClick(student)}
+                          className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-455 hover:text-rose-300 rounded-lg border border-rose-500/20 hover:border-rose-500/35 transition-all active:scale-95 cursor-pointer"
+                          title="Delete Student Account"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -297,6 +338,44 @@ const StudentList = () => {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {studentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md p-6 rounded-2xl glass-panel shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-400 border-b border-slate-800 pb-3">
+              <AlertCircle size={20} />
+              <h3 className="text-lg font-bold text-white">Delete Student Account</h3>
+            </div>
+            
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Are you sure you want to delete the student profile for <strong className="text-white">{studentToDelete.name}</strong> (Roll: {studentToDelete.rollNumber})?
+            </p>
+            <p className="text-xs text-rose-455/85">
+              ⚠️ This action cannot be undone. All course submissions associated with this student will also be removed.
+            </p>
+
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setStudentToDelete(null)}
+                disabled={!!deletingId}
+                className="px-4 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-xs font-semibold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={!!deletingId}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {deletingId ? 'Deleting...' : 'Delete Permanently'}
+              </button>
+            </div>
           </div>
         </div>
       )}
